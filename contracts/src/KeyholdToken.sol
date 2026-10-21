@@ -14,8 +14,11 @@ contract KeyholdToken is ERC20 {
 
     constructor() ERC20("Keyhold Token", "KHT") {}
 
-    function faucet() external {
-        if (block.timestamp < lastClaim[msg.sender] + FAUCET_COOLDOWN) revert FaucetCooldown();
+        function faucet() external {
+        uint256 last = lastClaim[msg.sender];
+        // First claim is always allowed. block.timestamp drift of seconds is
+        // acceptable for a 1-day cooldown.
+        if (last != 0 && block.timestamp < last + FAUCET_COOLDOWN) revert FaucetCooldown();
         lastClaim[msg.sender] = block.timestamp;
         _mint(msg.sender, FAUCET_AMOUNT);
     }
